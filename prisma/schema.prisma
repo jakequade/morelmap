@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Cafe {
+  id      String       @id @unique @default(uuid())
+  email   String?
+  name    String
+  phone   String?
+  reviews CafeReview[]
+  dishes  Dish[]
+}
+
+model Dish {
+  id             String       @id @unique @default(uuid())
+  cafeId         String
+  hasVeganOption Boolean      @default(false)
+  isVegan        Boolean      @default(false)
+  name           String
+  cafe           Cafe         @relation(fields: [cafeId], references: [id])
+  reviews        DishReview[]
+}
+
+model DishReview {
+  id      String @id @unique @default(uuid())
+  comment String
+  dishId  String
+  rating  Int
+  title   String
+  userId  String
+  dish    Dish   @relation(fields: [dishId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model CafeReview {
+  id      String @id @unique @default(uuid())
+  cafeId  String
+  comment String
+  rating  Int
+  title   String
+  userId  String
+  cafe    Cafe   @relation(fields: [cafeId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id          String       @id @unique @default(uuid())
+  email       String       @unique
+  image       String?
+  name        String
+  password    String
+  cafeReviews CafeReview[]
+  dishReviews DishReview[]
+}
